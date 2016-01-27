@@ -14,7 +14,7 @@ var port = process.env.PORT === 'undefined' ? '8081' : process.env.PORT;
 
 
 server.listen(port, function () {
-    console.log('Server is listening to localhost:8081');
+    console.log('Server is listening to localhost:'+port);
 });
 
 app.get('/', function (req, res) {
