@@ -5,14 +5,13 @@ var io = require('socket.io')(server);
 //var p2 = require('p2');
 
 var boxes = [];
+
+//set Port to 8081 if process.env.PORT is undefined
 var port = process.env.PORT === undefined ? '8081' : process.env.PORT;
 
 
 //Web Server Konfig
 //#################
-
-console.log(port, process.env.PORT);
-
 
 server.listen(port, function () {
     console.log('Server is listening to localhost:' + port);
