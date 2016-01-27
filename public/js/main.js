@@ -9,7 +9,7 @@ window.onload = function () {
 
     io.connect();
     init();
-    
+
 
     function init() {
 
@@ -32,7 +32,7 @@ window.onload = function () {
         planeBody = new p2.Body();
         planeBody.addShape(planeShape);
         world.addBody(planeBody);
-        planeBody.position[1] = -2;
+		planeBody.position[1] = -2;
 
         // Create a body for the cursor
         mouseBody = new p2.Body();
@@ -80,9 +80,9 @@ window.onload = function () {
 
         //Box Informationen vom Server erhalten
         socket.on('toClient', function (data) {
-            
+
             Boxes.forEach(function (box) {
-                
+
                 //data.boxes.forEach(function (data_box) {
                     if (box.id === data.box.id) {
                         box.boxBody.position[0] = data.box.x;
@@ -91,9 +91,9 @@ window.onload = function () {
                         box.boxBody.velocity = data.box.velocity;
                     }
                 //});
-                
+
             });
-            
+
             /*
             console.log(
                 'id: ' + data.id,
@@ -111,14 +111,16 @@ window.onload = function () {
 
         //Den server nach den bereits vorhandenen clients fragen
         //wenn die verbindung aufgebaut wurde.
-        //das init event gibt eine callback funktion mit 
+        //das init event gibt eine callback funktion mit
         //die vom Server an den Client zurück gegeben wird.
         //Und beim client ausgeführt wird.
         socket.on('connect', function () {
-            
+
 
             //get and set client ID
             id = socket.id;
+            document.getElementById("sioid").insertAdjacentHTML('beforeend', id);
+
             console.log('id: ' + id);
 
             //set id to own box
@@ -131,8 +133,8 @@ window.onload = function () {
                     boxes.forEach(function (box) {
                         if (box.id !== id) {
 
-                            console.log("Box pushed box.id: " 
-                                        + box.id + "  x: " 
+                            console.log("Box pushed box.id: "
+                                        + box.id + "  x: "
                                         + box.x + " y: " + box.y);
 
                             Boxes.push(
@@ -307,8 +309,8 @@ window.onload = function () {
         }
         return angle;
     }
-    
-    
+
+
     //world interpolation variablen
     var fixedTimeStep = 1 / 60;
     var maxSubSteps = 1;
@@ -319,10 +321,10 @@ window.onload = function () {
     // Animation loop
     function animate(t) {
         requestAnimationFrame(animate);
-        
+
         timeSeconds = t / 1000;
         lastTimeSeconds = lastTimeSeconds || timeSeconds;
-        
+
         deltaTime = timeSeconds - lastTimeSeconds;
 
         // Move physics bodies forward in time
@@ -331,9 +333,9 @@ window.onload = function () {
         // Render scene
         render();
     }
-    
+
     requestAnimationFrame(animate);
-    
+
     //Box informationen an server senden
     function toServer() {
         socket.emit('toServer', {
@@ -343,7 +345,7 @@ window.onload = function () {
             velocity: Boxes[0].boxBody.velocity
         });
     }
-    
+
     //Update loop
     setInterval(toServer, 10);
 };

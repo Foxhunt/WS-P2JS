@@ -5,12 +5,15 @@ var io = require('socket.io')(server);
 //var p2 = require('p2');
 
 var boxes = [];
+var port = process.env.PORT === 'undefined' ? '8081' : process.env.PORT;
 
 
 //Web Server Konfig
 //#################
 
-server.listen(process.env.PORT, function () {
+
+
+server.listen(port, function () {
     console.log('Server is listening to localhost:8081');
 });
 
@@ -26,7 +29,7 @@ app.use(express.static(__dirname + '/public'));
 //Socket konfg
 //############
 //io.set('heartbeat interval', 30);
-io.set('heartbeat timeout', 1000);
+io.set('heartbeat timeout', 1500);
 
 //client verbindet sich
 io.on('connection', function (socket) {
@@ -38,7 +41,7 @@ io.on('connection', function (socket) {
     boxes.push(new Box(id));
 
     //über client benachrichtigen
-    console.log('Client ' + id + ' connected. (' + boxes.length + ")");
+    console.log('Client ' + id + ' connected. (' + boxes.length + ')');
 
     //clients über neuen client informieren
     socket.broadcast.emit('new', {
@@ -59,9 +62,9 @@ io.on('connection', function (socket) {
 
                 /*
                 console.log(
-                    "box.id: " + box.id,
-                    "id: " + id,
-                    "box.id === id: " + (box.id === id)
+                    'box.id: ' + box.id,
+                    'id: ' + id,
+                    'box.id === id: ' + (box.id === id)
                     );
                 */
 
@@ -90,20 +93,22 @@ io.on('connection', function (socket) {
 
     //Box Informationen an clients senden
     function toClients() {
-        
-        //console.log("toClients: " + boxes[0]);
-        
-        boxes.forEach(function (box){
-            if(box.id === id){
-                socket.broadcast.emit('toClient', {box: box});
-                //console.log("toClients: " + box.id);
+
+        //console.log('toClients: ' + boxes[0]);
+
+        boxes.forEach(function (box) {
+            if (box.id === id) {
+                socket.broadcast.emit('toClient', {
+                    box: box
+                });
+                //console.log('toClients: ' + box.id);
             }
         });
-        
+
         /*
         socket.broadcast.emit('toClient', {
             boxes: boxes
-            
+
         });
         */
     }
@@ -119,7 +124,7 @@ io.on('connection', function (socket) {
             id: id
         });
 
-        console.log('Client ' + id + ' disconnected. (' + boxes.length + ")");
+        console.log('Client ' + id + ' disconnected. (' + boxes.length + ')');
     });
 
 
@@ -130,14 +135,13 @@ function Box(id, x, y, angle, velocity) {
     this.id = id;
 
 
-    this.x = typeof x !== 'undefined' ? x : 0;
-    this.y = typeof y !== 'undefined' ? y : 5;
-    this.angle = typeof angle !== 'undefined' ? angle : 0;
-    this.velocity = typeof velocity !== 'undefined' ? velocity : 0;
+    this.x = typeof x === 'undefined' ? 0 : x;
+    this.y = typeof y === 'undefined' ? 5 : y;
+    this.angle = typeof angle === 'undefined' ? 0 : angle;
+    this.velocity = typeof velocity === 'undefined' ? 0 : velocity;
 
 }
 
-//test
 
 //p2JS konfig
 //###########
