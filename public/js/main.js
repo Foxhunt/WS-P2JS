@@ -32,7 +32,7 @@ window.onload = function () {
         planeBody = new p2.Body();
         planeBody.addShape(planeShape);
         world.addBody(planeBody);
-		planeBody.position[1] = -2;
+        planeBody.position[1] = -2;
 
         // Create a body for the cursor
         mouseBody = new p2.Body();
@@ -53,7 +53,7 @@ window.onload = function () {
         canvas.addEventListener('mouseup', coursorUp);
         canvas.addEventListener('touchend', coursorUp);
         //canvas.addEventListener('pointerup', coursorDown);
-        
+
         // Beim verlassen der Maus wird die Box an Position gehalten
         canvas.addEventListener('mouseleave', mouseLeave);
 
@@ -84,12 +84,12 @@ window.onload = function () {
             Boxes.forEach(function (box) {
 
                 //data.boxes.forEach(function (data_box) {
-                    if (box.id === data.box.id) {
-                        box.boxBody.position[0] = data.box.x;
-                        box.boxBody.position[1] = data.box.y;
-                        box.boxBody.angle = data.box.angle;
-                        box.boxBody.velocity = data.box.velocity;
-                    }
+                if (box.id === data.box.id) {
+                    box.boxBody.position[0] = data.box.x;
+                    box.boxBody.position[1] = data.box.y;
+                    box.boxBody.angle = data.box.angle;
+                    box.boxBody.velocity = data.box.velocity;
+                }
                 //});
 
             });
@@ -99,7 +99,7 @@ window.onload = function () {
                 'id: ' + data.id,
                 'x: ' + data.x,
                 'y: ' + data.y,
-                'angle: ' + data.angle@
+                'angle: ' + data.angle
             );
             */
             //Boxes[].boxBody.position[0] = data.x;
@@ -133,9 +133,7 @@ window.onload = function () {
                     boxes.forEach(function (box) {
                         if (box.id !== id) {
 
-                            console.log("Box pushed box.id: "
-                                        + box.id + "  x: "
-                                        + box.x + " y: " + box.y);
+                            console.log("Box pushed box.id: " + box.id + "  x: " + box.x + " y: " + box.y);
 
                             Boxes.push(
                                 new Box(
@@ -222,9 +220,9 @@ window.onload = function () {
     }
 
     function mouseLeave(event) {
-        if(debug)
+        if (debug)
             console.log("Mouse leaved!!");
-            
+
         var position = getPhysicsCoord(event);
         mouseBody.position[0] = position[0];
         mouseBody.position[1] = position[1];
@@ -241,8 +239,7 @@ window.onload = function () {
         if (Event.touches) {
             var x = Event.touches[0].clientX - rect.left;
             var y = Event.touches[0].clientY - rect.top;
-        }
-        else {
+        } else {
             var x = Event.clientX - rect.left;
             var y = Event.clientY - rect.top;
         }
@@ -344,6 +341,12 @@ window.onload = function () {
             angle: Boxes[0].boxBody.interpolatedAngle,
             velocity: Boxes[0].boxBody.velocity
         });
+
+        console.log(
+            'x: ' + Boxes[0].boxBody.interpolatedPosition[0],
+            'y: ' + Boxes[0].boxBody.interpolatedPosition[1]
+        );
+
     }
 
     //Update loop
