@@ -118,7 +118,19 @@ io.on('connection', function (socket) {
     //so dass Sie den client entfernen können (leave event)
     socket.on('disconnect', function () {
 
-        boxes.splice(boxes.indexOf(id), 1);
+
+        //boxes.splice(boxes.indexOf(id), 1);
+
+		//Alle Boxen überprüfen
+			boxes.forEach(function (box) {
+				//Wenn Box id und erhaltene id übereinstimmen
+				if (box.id === id) {
+					//Box aus dem Boxes Array entfernen.
+					boxes.splice(boxes.indexOf(box), 1);
+				}
+
+			});
+
 
         socket.broadcast.emit('leave', {
             id: id
