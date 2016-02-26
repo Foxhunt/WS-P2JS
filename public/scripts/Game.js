@@ -31,7 +31,8 @@ window.onload = function () {
 
 	var life = 100;
 	var lifeText;
-	var player;
+	var player1;
+	var player2;
 	var platforms;
 	var bombs;
 	var bombLifetime = 3000;
@@ -73,21 +74,21 @@ window.onload = function () {
 		});
 
 		//add Player
-		player = game.add.sprite(32, Ground.y - 60, 'Player');
+		player1 = game.add.sprite(32, Ground.y - 60, 'Player');
 
-		//physics for the player on!!
-		game.physics.arcade.enable(player);
-		player.body.collideWorldBounds = true;
-		player.health = life;
-		player.body.bounce.y = 0.3;
-		player.body.gravity.y = 400;
-		player.scale.set(2);
-		player.animations.add('move', null, 10, true);
-		player.animations.play('move');
-		player.events.onKilled.add(resetPlayer, player);
+		//physics for the player1 on!!
+		game.physics.arcade.enable(player1);
+		player1.body.collideWorldBounds = true;
+		player1.health = life;
+		player1.body.bounce.y = 0.3;
+		player1.body.gravity.y = 400;
+		player1.scale.set(2);
+		player1.animations.add('move', null, 10, true);
+		player1.animations.play('move');
+		player1.events.onKilled.add(resetPlayer, player1);
 
 		//cammera follow
-		game.camera.follow(player);
+		game.camera.follow(player1);
 
 		//Life Text
 		lifeText = game.add.text(16, 16, 'Life: ' + life, {
@@ -166,10 +167,10 @@ window.onload = function () {
 
 		var f1 = gui.addFolder('Player');
 		f1.open();
-		f1.add(player, 'health').min(0).max(100).step(5).listen();
-		f1.add(player, 'kill');
-		f1.add(player, 'x').min(0).max(game.world.width - 32).listen();
-		f1.add(player, 'y').min(0).max(318).listen();
+		f1.add(player1, 'health').min(0).max(100).step(5).listen();
+		f1.add(player1, 'kill');
+		f1.add(player1, 'x').min(0).max(game.world.width - 32).listen();
+		f1.add(player1, 'y').min(0).max(318).listen();
 
 		var f1 = gui.addFolder('Game');
 		f1.open();
@@ -184,7 +185,7 @@ window.onload = function () {
 
 
 
-		game.physics.arcade.collide(platforms, player);
+		game.physics.arcade.collide(platforms, player1);
 
 
 
@@ -201,18 +202,18 @@ window.onload = function () {
 		var left = (cursors.left.isDown || BtnLeft || A);
 		var right = (cursors.right.isDown || BtnRight || D);
 
-		//  Reset the players velocity (movement)
-		player.body.velocity.x = 0;
+		//  Reset the player1s velocity (movement)
+		player1.body.velocity.x = 0;
 
 		if (left) {
 			//  Move to the left
-			player.body.velocity.x = -150;
+			player1.body.velocity.x = -150;
 		} else if (right) {
 			//  Move to the right
-			player.body.velocity.x = 150;
+			player1.body.velocity.x = 150;
 		}
 
-		//  Allow the player to jump if they are touching the ground.
+		//  Allow the player1 to jump if they are touching the ground.
 		if (spaceIsDown || BtnBomb) {
 			dropBomb();
 		}
@@ -227,15 +228,15 @@ window.onload = function () {
 	//render stuff
 	function render() {
 
-		lifeText.text = 'Life: ' + player.health;
+		lifeText.text = 'Life: ' + player1.health;
 
 		if (debug.overlay) {
-			game.debug.body(player);
+			game.debug.body(player1);
 			bombs.forEach(function (bomb) {
 				game.debug.spriteBounds(bomb);
 			});
 			game.debug.cameraInfo(game.camera, 500, 60);
-			game.debug.spriteInfo(player, 32, 60);
+			game.debug.spriteInfo(player1, 32, 60);
 		}
 
 
@@ -253,7 +254,7 @@ window.onload = function () {
 			var bomb = bombs.getFirstExists(false);
 
 			if (bomb) {
-				bomb.reset(16 + player.x, 16 + player.y);
+				bomb.reset(16 + player1.x, 16 + player1.y);
 				bomb.lifespan = bombLifetime;
 				bombTime = game.time.now + bombOffsetTime;
 				bombCountdown(bomb);
@@ -261,15 +262,15 @@ window.onload = function () {
 		}
 	}
 
-	//Make the player jump in the air when a bomb goes of
+	//Make the player1 jump in the air when a bomb goes of
 	function explodeBomb() {
 
-		if (this.overlap(player)) {
-			player.body.velocity.y -= 300;
-			player.damage(5);
+		if (this.overlap(player1)) {
+			player1.body.velocity.y -= 300;
+			player1.damage(5);
 		}
 
-		// game.physics.arcade.overlap(this, player,
+		// game.physics.arcade.overlap(this, player1,
 		// function boom (a, b){
 		//     b.body.velocity.y = -150;
 		// });
@@ -324,4 +325,39 @@ window.onload = function () {
 	function resetPlayer() {
 		this.reset(32, game.world.height - 190, 100);
 	}
+
+	//tell Server player1 droped a bomb.
+	function sndDropBomb() {
+		socket.emit('dropBomb');
+	}
+
+	//send player1 location to the Server.
+	function toServer() {
+		socket.emit('toServer', {
+			x: player1.x,
+			y: player1.y,
+			velocity: player1.velocity
+		});
+	}
+
+	//Update loop
+	setInterval(toServer, 10);
+
+
+
+	//event listener for other player updates
+	socket.on('toClient', function (data) {
+		player2.x = data.x;
+		player2.y = data.y;
+		player2.velocity = data.velocity;
+	});
+
+
+	//event listener for other player bomb drops
+
+
+	//spawn oposing player wehn joined
+
+
+
 };

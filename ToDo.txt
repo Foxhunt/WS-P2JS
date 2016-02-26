@@ -1,0 +1,36 @@
+
+
+server architektur umbauen:
+	zwei spieler pro spiel/kanal
+	erste rspieler erzeugt ein spiel mit einem client, näcster client wird in dieses spiel hinzugefügt.
+	neue spieler werden einem leeren noch nicht begonnenem spiel zugewiesen
+	ein spieler verläst das spiel übriger spieler gewinnt
+
+benötige:
+
+	Server:
+		array für die spieler pro sitzung
+		construktor für spieler objekt
+			x, y, velocity, id
+		
+		out:
+			spieler positionen
+			bomb drop + position
+		
+		int:
+			spieler positionen
+			bomb drop + position
+			
+	Client:
+		funktion zum hinzufügen des gegners
+		spiel läuft im leerlauf wenn kein gegner da ist
+		spieler position und leben resetten sobald ein gegner beitrit
+		countdown und spiel beginnt
+		
+		out:
+			spielerposition
+			bomb drop + position
+			
+		in:
+			gegner position
+			gegner bomb drop + position

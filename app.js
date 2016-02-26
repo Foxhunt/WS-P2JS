@@ -4,7 +4,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 //var p2 = require('p2');
 
-var boxes = [];
+var balls = [];
 
 //set Port to 8081 if process.env.PORT is undefined
 var port = process.env.PORT === undefined ? '8081' : process.env.PORT;
@@ -38,10 +38,10 @@ io.on('connection', function (socket) {
     var id = socket.id;
 
     //neuen client anlegen
-    boxes.push(new Box(id));
+    balls.push(new Ball(id));
 
     //über client benachrichtigen
-    console.log('Client ' + id + ' connected. (' + boxes.length + ')');
+    console.log('Client ' + id + ' connected. (' + balls.length + ')');
 
     //clients über neuen client informieren
     socket.broadcast.emit('new', {
@@ -50,14 +50,14 @@ io.on('connection', function (socket) {
 
     //clients beim neuen client initialisieren
     socket.on('init', function (fn) {
-        fn(boxes);
+        fn(balls);
     });
 
-    //Box informationen vom Client erhalten
+    //Ball informationen vom Client erhalten
     socket.on('toServer', function (data) {
 
         //suche die passende box und setze x, y und angle
-        boxes.forEach(function (box) {
+        balls.forEach(function (box) {
             if (box.id === id) {
 
                 /*
@@ -71,7 +71,6 @@ io.on('connection', function (socket) {
 
                 box.x = data.x;
                 box.y = data.y;
-                box.angle = data.angle;
                 box.velocity = data.velocity;
             }
         });
@@ -91,12 +90,12 @@ io.on('connection', function (socket) {
     //periodischen senden von updates an die  Clients;
     setInterval(toClients, 10);
 
-    //Box Informationen an clients senden
+    //Ball Informationen an clients senden
     function toClients() {
 
-        //console.log('toClients: ' + boxes[0]);
+        //console.log('toClients: ' + balls[0]);
 
-        boxes.forEach(function (box) {
+        balls.forEach(function (box) {
             if (box.id === id) {
                 socket.broadcast.emit('toClient', {
                     box: box
@@ -107,7 +106,7 @@ io.on('connection', function (socket) {
 
         /*
         socket.broadcast.emit('toClient', {
-            boxes: boxes
+            balls: balls
 
         });
         */
@@ -119,14 +118,14 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
 
 
-        //boxes.splice(boxes.indexOf(id), 1);
+        //balls.splice(balls.indexOf(id), 1);
 
-		//Alle Boxen überprüfen
-			boxes.forEach(function (box) {
-				//Wenn Box id und erhaltene id übereinstimmen
+		//Alle Ballen überprüfen
+			balls.forEach(function (box) {
+				//Wenn Ball id und erhaltene id übereinstimmen
 				if (box.id === id) {
-					//Box aus dem Boxes Array entfernen.
-					boxes.splice(boxes.indexOf(box), 1);
+					//Ball aus dem Balles Array entfernen.
+					balls.splice(balls.indexOf(box), 1);
 				}
 
 			});
@@ -136,14 +135,14 @@ io.on('connection', function (socket) {
             id: id
         });
 
-        console.log('Client ' + id + ' disconnected. (' + boxes.length + ')');
+        console.log('Client ' + id + ' disconnected. (' + balls.length + ')');
     });
 
 
 });
 
-//Box constructor Server Version
-function Box(id, x, y, angle, velocity) {
+//Ball constructor Server Version
+function Ball(id, x, y, velocity) {
     this.id = id;
 
 
