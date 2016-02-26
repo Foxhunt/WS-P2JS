@@ -1,5 +1,8 @@
 window.onload = function () {
 
+	var socket = io();
+	var id;
+
 	var game = new Phaser.Game(800, 480, Phaser.AUTO, "Game", {
 		preload: preload,
 		create: create,

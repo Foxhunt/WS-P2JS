@@ -18,7 +18,7 @@ server.listen(port, function () {
 });
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/public/index.html');
+    res.sendFile(__dirname + '/public/Game.html');
     console.log('\'' + req.path + '\' requested');
 });
 
