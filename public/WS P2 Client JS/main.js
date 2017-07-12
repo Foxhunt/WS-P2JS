@@ -7,7 +7,7 @@ window.onload = function () {
 		socket = io(),
 		debug = false;
 
-	io.connect();
+	//io.connect();
 	init();
 
 
