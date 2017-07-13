@@ -7,7 +7,6 @@ window.onload = function () {
 		socket = io(),
 		debug = false;
 
-	//io.connect();
 	init();
 
 
@@ -94,20 +93,6 @@ window.onload = function () {
 					box.boxBody.velocity = data.box.velocity;
 				}
 			});
-
-			/*
-			console.log(
-			    'id: ' + data.id,
-			    'x: ' + data.x,
-			    'y: ' + data.y,
-			    'angle: ' + data.angle
-			);
-			*/
-			//Boxes[].boxBody.position[0] = data.x;
-			//Boxes[].boxBody.position[1] = data.y;
-			//Boxes[].boxBody.angle = data.angle;
-
-
 		});
 
 		//Den server nach den bereits vorhandenen clients fragen
@@ -122,48 +107,43 @@ window.onload = function () {
 			id = socket.id;
 			document.getElementById("sioid").insertAdjacentHTML('beforeend', id);
 
-			console.log('id: ' + id);
-
 			//set id to own box
 			Boxes[0].id = id;
 
 			//Vom Server die bereits verbundenen clients abrufen
 			socket.emit('init', function (boxes) {
 
-					console.log("initialisiert " + boxes.length + "Boxen.");
+				console.log("initialisiert " + boxes.length + "Boxen.");
 
-					boxes.forEach(function (box) {
-						if (box.id !== id) {
+				boxes.forEach(function (box) {
+					if (box.id !== id) {
 
-							console.log("Box pushed box.id: " + box.id + "  x: " + box.x + " y: " + box.y);
+						console.log("Box pushed box.id: " + box.id + "  x: " + box.x + " y: " + box.y);
 
-							Boxes.push(
-								new Box(
-									box.id,
-									box.x,
-									box.y,
-									box.angle
-								)
-							);
-						}
-					});
+						Boxes.push(
+							new Box(
+								box.id,
+								box.x,
+								box.y,
+								box.angle
+							)
+						);
+					}
+				});
 
+				console.log((boxes.length - 1) + ' boxe(s) added');
+			}); // ende emit init
 
+		}); // ende onConnect
 
-					console.log((boxes.length - 1) + ' boxe(s) added');
-				}
-
-			);
-		});
-
-	}
+	} //ende init
 
 	// neue Box mit id erstellen.
 	function Box(id, x, y, angle) {
 
 		x = typeof x === 'undefined' ? 0 : x;
 		y = typeof y === 'undefined' ? 5 : y;
-		angle = typeof angle !== 'undefined' ? angle : 0;
+		angle = typeof angle === 'undefined' ? 0 : angle;
 
 		this.boxShape = new p2.Rectangle(2, 1);
 		this.boxBody = new p2.Body({
@@ -179,8 +159,6 @@ window.onload = function () {
 
 	//event handler für User Interaktion
 	function coursorDown(event) {
-		if (debug)
-			console.log("Down!!");
 
 		// Convert the canvas coordinate to physics coordinates
 		var position = getPhysicsCoord(event);
@@ -205,26 +183,17 @@ window.onload = function () {
 	}
 
 	function coursorMove(event) {
-		if (debug)
-			console.log("Move!!");
-
 		var position = getPhysicsCoord(event);
 		mouseBody.position[0] = position[0];
 		mouseBody.position[1] = position[1];
 	}
 
 	function coursorUp(event) {
-		if (debug)
-			console.log("Up!!");
-
 		world.removeConstraint(mouseConstraint);
 		mouseConstraint = null;
 	}
 
 	function mouseLeave(event) {
-		if (debug)
-			console.log("Mouse leaved!!");
-
 		var position = getPhysicsCoord(event);
 		mouseBody.position[0] = position[0];
 		mouseBody.position[1] = position[1];
@@ -244,12 +213,6 @@ window.onload = function () {
 		} else {
 			var x = Event.clientX - rect.left;
 			var y = Event.clientY - rect.top;
-		}
-
-		if (debug) {
-			console.log('x: ' + x);
-			console.log('y: ' + y);
-
 		}
 
 		x = (x - w / 2) / scaleX;
@@ -343,14 +306,6 @@ window.onload = function () {
 			angle: Boxes[0].boxBody.interpolatedAngle,
 			velocity: Boxes[0].boxBody.velocity
 		});
-
-		/*
-		console.log(
-			'x: ' + Boxes[0].boxBody.interpolatedPosition[0],
-			'y: ' + Boxes[0].boxBody.interpolatedPosition[1]
-		);
-		*/
-
 	}
 
 	//Update loop
