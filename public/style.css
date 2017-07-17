@@ -6,6 +6,5 @@ body {
 }
 
 #myCanvas {
-	width: 900px;
-	height: 600px;
+	//transform: scale(0.5);
 }

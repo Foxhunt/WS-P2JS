@@ -105,7 +105,7 @@ window.onload = function () {
 
 			//get and set client ID
 			id = socket.id;
-			document.getElementById("sioid").insertAdjacentHTML('beforeend', id);
+			document.getElementById("sioid").innerHTML = `id: ${id}`;
 
 			//set id to own box
 			Boxes[0].id = id;
