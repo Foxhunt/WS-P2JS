@@ -1,9 +1,9 @@
 window.onload = function () {
 
-	var canvas, ctx, w, h, world, planeBody, mouseConstraint, id,
+	var canvas, ctx, w, h, box, world, planeBody, leftWallBody, rightWallBody, mouseConstraint, id,
 		scaleX = 50,
 		scaleY = -50,
-		Boxes = [],
+		boxes = new Map,
 		socket = io(),
 		debug = false;
 
@@ -23,15 +23,36 @@ window.onload = function () {
 		// Init p2.js
 		world = new p2.World();
 
-		// Add a box
-		Boxes.push(new Box(id));
-
 		// Add a plane
 		planeShape = new p2.Plane();
 		planeBody = new p2.Body();
 		planeBody.addShape(planeShape);
+
+		//wand links
+		leftWallShape = new p2.Plane();
+		leftWallBody = new p2.Body();
+		leftWallBody.addShape(leftWallShape);
+
+		//wand rechts
+		rightWallShape = new p2.Plane();
+		rightWallBody = new p2.Body();
+		rightWallBody.addShape(rightWallShape);
+
+		// planes hinzufügen
 		world.addBody(planeBody);
-		planeBody.position[1] = -2;
+		world.addBody(rightWallBody);
+		world.addBody(leftWallBody);
+
+		// positionen und rotationen setzten
+		planeBody.position[1] = -10;
+
+		leftWallBody.position[0] = -9;
+		leftWallBody.angle = -(Math.PI / 2);
+
+
+		rightWallBody.position[0] = 9;
+		rightWallBody.angle = Math.PI / 2;
+
 
 		// Create a body for the cursor
 		mouseBody = new p2.Body();
@@ -60,39 +81,33 @@ window.onload = function () {
 		//Neuen client und seine Box anlegen
 		socket.on('new', function (data) {
 			console.log("new! : " + data.id)
-			Boxes.push(new Box(data.id));
+			boxes.set(data.id, new Box(data.id));
 		});
 
 		//Box eines Clients löschen der das Spiel verlassen hat
 		socket.on('leave', function (data) {
 
+			// Box löschen
+			world.removeBody(boxes.get(data.id).boxBody);
+			boxes.delete(data.id);
 
-			//Alle Boxen überprüfen
-			Boxes.forEach(function (box) {
-				//Wenn Box id und erhaltene id übereinstimmen
-				if (box.id === data.id) {
-					//Box aus dem Boxes Array entfernen.
-					Boxes.splice(Boxes.indexOf(box), 1);
-					//Körper der Box entfernen.
-					world.removeBody(box.boxBody);
-				}
 
-			});
 			console.log("left! : " + data.id);
 		});
 
 		//Box Informationen vom Server erhalten
 		socket.on('toClient', function (data) {
 
+			// betroffene box ermitteln
+			let box = boxes.get(data.box.id);
+
 			//erhaltenen Informationen verarbeiten
-			Boxes.forEach(function (box) {
-				if (box.id === data.box.id) {
-					box.boxBody.position[0] = data.box.x;
-					box.boxBody.position[1] = data.box.y;
-					box.boxBody.angle = data.box.angle;
-					box.boxBody.velocity = data.box.velocity;
-				}
-			});
+			if (box) {
+				box.boxBody.position[0] = data.box.x;
+				box.boxBody.position[1] = data.box.y;
+				box.boxBody.angle = data.box.angle;
+				box.boxBody.velocity = data.box.velocity;
+			}
 		});
 
 		//Den server nach den bereits vorhandenen clients fragen
@@ -107,31 +122,28 @@ window.onload = function () {
 			id = socket.id;
 			document.getElementById("sioid").innerHTML = `id: ${id}`;
 
-			//set id to own box
-			Boxes[0].id = id;
+			box = new Box(id);
+
+			// Add a box
+			boxes.set(id, box);
 
 			//Vom Server die bereits verbundenen clients abrufen
-			socket.emit('init', function (boxes) {
+			socket.emit('init', function (_boxes) {
 
-				console.log("initialisiert " + boxes.length + "Boxen.");
+				console.log(_boxes.length + " Boxen initialisiert");
 
-				boxes.forEach(function (box) {
-					if (box.id !== id) {
-
-						console.log("Box pushed box.id: " + box.id + "  x: " + box.x + " y: " + box.y);
-
-						Boxes.push(
-							new Box(
-								box.id,
-								box.x,
-								box.y,
-								box.angle
-							)
+				_boxes.forEach((_box) => {
+					if (_box.id !== id) {
+						let box = new Box(
+							_box.id,
+							_box.x,
+							_box.y,
+							_box.angle
 						);
+						boxes.set(box.id, box);
 					}
 				});
 
-				console.log((boxes.length - 1) + ' boxe(s) added');
 			}); // ende emit init
 
 		}); // ende onConnect
@@ -164,7 +176,7 @@ window.onload = function () {
 		var position = getPhysicsCoord(event);
 
 		// Check if the cursor is inside the box
-		var hitBodies = world.hitTest(position, [Boxes[0].boxBody]);
+		var hitBodies = world.hitTest(position, [box.boxBody]);
 
 		if (hitBodies.length) {
 
@@ -174,7 +186,7 @@ window.onload = function () {
 
 			// Create a RevoluteConstraint.
 			// This constraint lets the bodies rotate around a common point
-			mouseConstraint = new p2.RevoluteConstraint(mouseBody, Boxes[0].boxBody, {
+			mouseConstraint = new p2.RevoluteConstraint(mouseBody, box.boxBody, {
 				worldPivot: position,
 				collideConnected: false
 			});
@@ -194,9 +206,8 @@ window.onload = function () {
 	}
 
 	function mouseLeave(event) {
-		var position = getPhysicsCoord(event);
-		mouseBody.position[0] = position[0];
-		mouseBody.position[1] = position[1];
+		world.removeConstraint(mouseConstraint);
+		mouseConstraint = null;
 	}
 
 	// Convert a canvas coordiante to physics coordinate
@@ -245,6 +256,21 @@ window.onload = function () {
 		ctx.stroke();
 	}
 
+	//Boden wände
+	function drawWalls() {
+
+		var x = leftWallBody.position[0]
+		ctx.moveTo(x, -h);
+		ctx.lineTo(x, h);
+		ctx.stroke();
+
+		x = rightWallBody.position[0]
+		ctx.moveTo(x, -h);
+		ctx.lineTo(x, h);
+		ctx.stroke();
+
+	}
+
 	//Render ?! LOL
 	function render() {
 		// Clear the canvas
@@ -256,8 +282,9 @@ window.onload = function () {
 		ctx.scale(scaleX, scaleY);
 
 		// Draw all bodies
-		Boxes.forEach(drawBox);
+		boxes.forEach(drawBox);
 		drawPlane();
+		drawWalls();
 
 		// Restore transform
 		ctx.restore();
@@ -301,10 +328,10 @@ window.onload = function () {
 	//Box informationen an server senden
 	function toServer() {
 		socket.emit('toServer', {
-			x: Boxes[0].boxBody.interpolatedPosition[0],
-			y: Boxes[0].boxBody.interpolatedPosition[1],
-			angle: Boxes[0].boxBody.interpolatedAngle,
-			velocity: Boxes[0].boxBody.velocity
+			x: box.boxBody.interpolatedPosition[0],
+			y: box.boxBody.interpolatedPosition[1],
+			angle: box.boxBody.interpolatedAngle,
+			velocity: box.boxBody.velocity
 		});
 	}
 
