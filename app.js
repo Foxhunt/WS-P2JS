@@ -23,7 +23,7 @@ app.use(express.static(__dirname + '/public'));
 
 //Socket konfg
 //############
-io.set('heartbeat interval', 30);
+io.set('heartbeat interval', 500);
 io.set('heartbeat timeout', 1500);
 
 //client verbindet sich

@@ -327,12 +327,14 @@ window.onload = function () {
 
 	//Box informationen an server senden
 	function toServer() {
-		socket.emit('toServer', {
-			x: box.boxBody.interpolatedPosition[0],
-			y: box.boxBody.interpolatedPosition[1],
-			angle: box.boxBody.interpolatedAngle,
-			velocity: box.boxBody.velocity
-		});
+		if (box) {
+			socket.emit('toServer', {
+				x: box.boxBody.interpolatedPosition[0],
+				y: box.boxBody.interpolatedPosition[1],
+				angle: box.boxBody.interpolatedAngle,
+				velocity: box.boxBody.velocity
+			});
+		}
 	}
 
 	//Update loop
