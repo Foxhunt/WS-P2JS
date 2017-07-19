@@ -69,7 +69,7 @@ io.on('connection', function (socket) {
 	});
 
 	//periodischen senden von updates an die  Clients;
-	setInterval(toClients, 10);
+	setInterval(toClients, 50);
 
 	//Box Informationen an clients senden
 	function toClients() {
