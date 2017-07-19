@@ -101,12 +101,22 @@ window.onload = function () {
 			// betroffene box ermitteln
 			let box = boxes.get(data.box.id);
 
+			let now = Date.now();
+
+			if (box && now - box.lastUpdate > 500) {
+				// Box löschen
+				world.removeBody(boxes.get(data.box.id).boxBody);
+				boxes.delete(data.box.id);
+				box = null;
+			}
+
 			//erhaltenen Informationen verarbeiten
 			if (box) {
 				box.boxBody.position[0] = data.box.x;
 				box.boxBody.position[1] = data.box.y;
 				box.boxBody.angle = data.box.angle;
 				box.boxBody.velocity = data.box.velocity;
+				box.lastUpdate = now;
 			}
 		});
 
@@ -166,6 +176,9 @@ window.onload = function () {
 		});
 		this.id = id;
 		this.boxBody.addShape(this.boxShape);
+
+		this.lastUpdate = Date.now();
+
 		world.addBody(this.boxBody);
 	}
 
