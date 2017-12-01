@@ -77,44 +77,29 @@ window.onload = function () {
 
 
 		//Neuen client und seine Box anlegen
-		socket.on('new', function (data) {
-			console.log("new! : " + data.id)
-			boxes.set(data.id, new Box(data.id));
+		socket.on('new', box => {
+			console.log("new! : " + box.id)
+			boxes.set(box.id, new Box(box.id));
 		});
 
 		//Box eines Clients löschen der das Spiel verlassen hat
-		socket.on('leave', function (data) {
-
+		socket.on('leave', box => {
 			// Box löschen
-			world.removeBody(boxes.get(data.id).boxBody);
-			boxes.delete(data.id);
-
-
-			console.log("left! : " + data.id);
+			world.removeBody(boxes.get(box.id).boxBody);
+			boxes.delete(box.id);
+			console.log("left! : " + box.id);
 		});
 
 		//Box Informationen vom Server erhalten
-		socket.on('toClient', function (data) {
-
+		socket.on('toClient', boxUpdate => {
 			// betroffene box ermitteln
-			let box = boxes.get(data.box.id);
-
-			let now = Date.now();
-
-			if (box && now - box.lastUpdate > 500) {
-				// Box löschen
-				world.removeBody(boxes.get(data.box.id).boxBody);
-				boxes.delete(data.box.id);
-				box = null;
-			}
-
+			let box = boxes.get(boxUpdate.id);
 			//erhaltenen Informationen verarbeiten
 			if (box) {
-				box.boxBody.position[0] = data.box.x;
-				box.boxBody.position[1] = data.box.y;
-				box.boxBody.angle = data.box.angle;
-				box.boxBody.velocity = data.box.velocity;
-				box.lastUpdate = now;
+				box.boxBody.position[0] = boxUpdate.x;
+				box.boxBody.position[1] = boxUpdate.y;
+				box.boxBody.angle = boxUpdate.angle;
+				box.boxBody.velocity = boxUpdate.velocity;
 			}
 		});
 
@@ -123,24 +108,20 @@ window.onload = function () {
 		//das init event gibt eine callback funktion mit
 		//die vom Server an den Client zurück gegeben wird.
 		//Und beim client ausgeführt wird.
-		socket.on('connect', function () {
-
-
+		socket.on('connect', () => {
 			//get and set client ID
 			id = socket.id;
 			document.getElementById("sioid").innerHTML = `id: ${id}`;
-
 			box = new Box(id);
-
 			// Add a box
 			boxes.set(id, box);
 
 			//Vom Server die bereits verbundenen clients abrufen
-			socket.emit('init', function (_boxes) {
+			socket.emit('init', _boxes => {
 
 				console.log(_boxes.length + " Boxen initialisiert");
 
-				_boxes.forEach((_box) => {
+				_boxes.forEach(_box => {
 					if (_box.id !== id) {
 						let box = new Box(
 							_box.id,
@@ -151,20 +132,15 @@ window.onload = function () {
 						boxes.set(box.id, box);
 					}
 				});
-
 			}); // ende emit init
-
 		}); // ende onConnect
-
 	} //ende init
 
 	// neue Box mit id erstellen.
 	function Box(id, x, y, angle) {
-
-		x = typeof x === 'undefined' ? 0 : x;
-		y = typeof y === 'undefined' ? 5 : y;
-		angle = typeof angle === 'undefined' ? 0 : angle;
-
+		x = x || 0;
+		y = y || 5;
+		angle = angle || 0;
 		this.boxShape = new p2.Rectangle(2, 1);
 		this.boxBody = new p2.Body({
 			mass: 1,
@@ -174,9 +150,7 @@ window.onload = function () {
 		});
 		this.id = id;
 		this.boxBody.addShape(this.boxShape);
-
 		this.lastUpdate = Date.now();
-
 		world.addBody(this.boxBody);
 	}
 

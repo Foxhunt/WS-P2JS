@@ -13,7 +13,7 @@ var port = process.env.PORT === undefined ? '8081' : process.env.PORT;
 //Web Server Konfig
 //#################
 
-server.listen(port, function () {
+server.listen(port, () => {
 	console.log('Server is listening to localhost:' + port);
 });
 
@@ -25,7 +25,7 @@ io.set('heartbeat interval', 500);
 io.set('heartbeat timeout', 1500);
 
 //client verbindet sich
-io.on('connection', function (socket) {
+io.on('connection', socket => {
 
 	//id zuweisen
 	let id = socket.id;
@@ -44,7 +44,7 @@ io.on('connection', function (socket) {
 	});
 
 	//clients beim neuen client initialisieren
-	socket.on('init', function (fn) {
+	socket.on('init', fn => {
 		let boxesArr = [];
 		for(let value of boxes.values()){
 			boxesArr.push(value);
@@ -53,7 +53,7 @@ io.on('connection', function (socket) {
 	});
 
 	//Box informationen vom Client erhalten
-	socket.on('toServer', function (data) {
+	socket.on('toServer', data => {
 		//suche die passende box und setze x, y und angle
 		box.x = data.x;
 		box.y = data.y;
@@ -67,13 +67,17 @@ io.on('connection', function (socket) {
 	//Box Informationen an clients senden
 	function toClients() {
 		socket.broadcast.emit('toClient', {
-			box: box
+			id: box.id,
+			x: box.x,
+			y: box.y,
+			angle: box.angle,
+			velocity: box.velocity
 		});
 	}
 
 	//Clients über das verlassen eines Cleints informieren
 	//so dass Sie den client entfernen können (leave event)
-	socket.on('disconnect', function () {
+	socket.on('disconnect', () => {
 		boxes.delete(id);
 		socket.broadcast.emit('leave', {
 			id: id
