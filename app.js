@@ -19,8 +19,6 @@ server.listen(port, function () {
 
 app.use(express.static(__dirname + '/public'));
 
-
-
 //Socket konfg
 //############
 io.set('heartbeat interval', 500);
@@ -38,7 +36,7 @@ io.on('connection', function (socket) {
 	boxes.set(id, box);
 
 	//über client benachrichtigen
-	console.log('Client ' + id + ' connected. (' + boxes.size + ')');
+	console.log(`Client ${id} connected. (${boxes.size})`);
 
 	//clients über neuen client informieren
 	socket.broadcast.emit('new', {
@@ -47,25 +45,20 @@ io.on('connection', function (socket) {
 
 	//clients beim neuen client initialisieren
 	socket.on('init', function (fn) {
-
 		let boxesArr = [];
-
 		for(let value of boxes.values()){
 			boxesArr.push(value);
 		}
-
 		fn(boxesArr);
 	});
 
 	//Box informationen vom Client erhalten
 	socket.on('toServer', function (data) {
-
 		//suche die passende box und setze x, y und angle
 		box.x = data.x;
 		box.y = data.y;
 		box.angle = data.angle;
 		box.velocity = data.velocity;
-
 	});
 
 	//periodischen senden von updates an die  Clients;
@@ -73,48 +66,27 @@ io.on('connection', function (socket) {
 
 	//Box Informationen an clients senden
 	function toClients() {
-
-
 		socket.broadcast.emit('toClient', {
 			box: box
 		});
-
-		/*
-		socket.broadcast.emit('toClient', {
-		    boxes: boxes
-
-		});
-		*/
 	}
-
 
 	//Clients über das verlassen eines Cleints informieren
 	//so dass Sie den client entfernen können (leave event)
 	socket.on('disconnect', function () {
-
 		boxes.delete(id);
-
 		socket.broadcast.emit('leave', {
 			id: id
 		});
-
-		console.log('Client ' + id + ' disconnected. (' + boxes.size + ')');
+		console.log(`Client ${id} disconnected. (${boxes.size})`);
 	});
-
-
 });
 
 //Box constructor Server Version
 function Box(id, x, y, angle, velocity) {
 	this.id = id;
-
-
-	this.x = typeof x === 'undefined' ? 0 : x;
-	this.y = typeof y === 'undefined' ? 5 : y;
-	this.angle = typeof angle === 'undefined' ? 0 : angle;
-	this.velocity = typeof velocity === 'undefined' ? 0 : velocity;
-
+	this.x = x || 0;
+	this.y = y || 5;
+	this.angle = angle || 0;
+	this.velocity = velocity || 0;
 }
-
-//p2JS konfig
-//###########

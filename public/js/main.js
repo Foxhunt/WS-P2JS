@@ -1,12 +1,10 @@
 window.onload = function () {
-
 	var canvas, ctx, w, h, box, world, planeBody, leftWallBody, rightWallBody, mouseConstraint, id,
 		scaleX = 50,
 		scaleY = -50,
 		boxes = new Map,
 		socket = io(),
 		debug = false;
-
 	init();
 
 
