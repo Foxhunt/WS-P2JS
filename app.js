@@ -21,8 +21,8 @@ app.use(express.static(__dirname + '/public'));
 
 //Socket konfg
 //############
-io.set('heartbeat interval', 500);
-io.set('heartbeat timeout', 1500);
+io.set('heartbeat interval', 2000);
+io.set('heartbeat timeout', 10000);
 
 //client verbindet sich
 io.on('connection', socket => {
