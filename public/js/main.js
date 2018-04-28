@@ -4,7 +4,9 @@ window.onload = function () {
 		scaleY = -50,
 		boxes = new Map,
 		socket = io(),
-		debug = false;
+		debug = false,
+		gui = new dat.GUI();
+		
 	init();
 
 
