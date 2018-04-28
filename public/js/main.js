@@ -325,5 +325,5 @@ window.onload = function () {
 	}
 
 	//Update loop
-	setInterval(toServer, 100);
+	setInterval(toServer, 50);
 };
