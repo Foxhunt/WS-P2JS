@@ -21,7 +21,25 @@ window.onload = function () {
 		ctx.lineWidth = 0.05;
 
 		// Init p2.js
-		world = new p2.World();
+		world = new p2.World({
+            gravity: [0, -1]
+		});
+		
+		const names = ["x", "y"]
+		
+		const worldGravity = Object.assign({}, world.gravity)
+		const gravityFolder = gui.addFolder("gravity")
+		
+		Object.keys(worldGravity).forEach( key => {
+			const controller = gravityFolder.add(worldGravity, key, -10, 10).name(names[key.valueOf()]).listen();
+			controller.onChange(value => {
+				world.gravity[key.valueOf()] = value
+			})
+		});
+		
+		gui.add(fs, "toggleFullScreen")
+		
+		window.addEventListener('deviceorientation', event => handleOrientation(event, worldGravity));
 
 		// Add a plane
 		planeShape = new p2.Plane();
@@ -326,4 +344,48 @@ window.onload = function () {
 
 	//Update loop
 	setInterval(toServer, 50);
+	
+	function handleOrientation(event, worldGravity){
+		var x = event.gamma;  // In degree in the range [-180,180]
+		var y = event.beta; // In degree in the range [-90,90]
+
+		// Because we don't want to have the device upside down
+		// We constrain the x value to the range [-90,90]
+		if (x >  90) { x =  90};
+		if (x < -90) { x = -90};
+
+		// To make computation easier we shift the range of 
+		// x and y to [0,180]
+		//x += 90;
+		//y += 90;	
+		
+		worldGravity["0"] = x/7
+		worldGravity["1"] = -y/8
+		
+		world.gravity[0] = worldGravity["0"]
+		world.gravity[1] = worldGravity["1"]
+	}
+	
 };
+
+function toggleFullScreen() {
+	
+	console.log("toggleFS")
+	
+  var doc = window.document;
+  var docEl = doc.documentElement;
+
+  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    requestFullScreen.call(docEl);
+		screen.orientation.lock('portrait')
+  }
+  else {
+    cancelFullScreen.call(doc);
+  }
+}
+
+const fs = {}
+fs.toggleFullScreen = toggleFullScreen
