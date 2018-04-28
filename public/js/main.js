@@ -229,6 +229,9 @@ window.onload = function () {
 			ctx.strokeStyle = "red";
 		}
 		ctx.rect(-box.boxShape.width / 2, -box.boxShape.height / 2, box.boxShape.width, box.boxShape.height);
+		
+		ctx.fillStyle = "blue";
+		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
 	}
@@ -258,9 +261,6 @@ window.onload = function () {
 
 	//Render ?! LOL
 	function render() {
-		// Clear the canvas
-		ctx.clearRect(0, 0, w, h);
-
 		// Transform the canvas
 		ctx.save();
 		ctx.translate(w / 2, h / 2); // Translate to the center
