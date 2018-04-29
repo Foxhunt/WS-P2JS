@@ -1,10 +1,11 @@
-body {
-	position: absolute;
-	left: calc(50%);
-	top: calc(50%);
-	transform: translate(-50%, -50%);
+html, body {
+	margin: 0;
 }
 
 #myCanvas {
-	//transform: scale(0.5);
+	width: 100%;
+}
+
+#cancasContainer {
+	width: 100%
 }
