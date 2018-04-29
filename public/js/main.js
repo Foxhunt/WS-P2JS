@@ -62,13 +62,13 @@ window.onload = function () {
 		world.addBody(leftWallBody);
 
 		// positionen und rotationen setzten
-		planeBody.position[1] = -10;
+		planeBody.position[1] = -15;
 
-		leftWallBody.position[0] = -9;
+		leftWallBody.position[0] = -9.6;
 		leftWallBody.angle = -(Math.PI / 2);
 
 
-		rightWallBody.position[0] = 9;
+		rightWallBody.position[0] = 9.6;
 		rightWallBody.angle = Math.PI / 2;
 
 
