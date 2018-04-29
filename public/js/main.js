@@ -131,7 +131,6 @@ window.onload = function () {
 		socket.on('connect', () => {
 			//get and set client ID
 			id = socket.id;
-			document.getElementById("sioid").innerHTML = `id: ${id}`;
 			box = new Box(id);
 			// Add a box
 			boxes.set(id, box);
