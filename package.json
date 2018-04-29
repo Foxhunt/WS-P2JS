@@ -14,7 +14,7 @@
 	},
 	"now": {
 		"alias": "p2",
-		"public": true,
+		"public": false,
 		"scale": {
 			"bru1": {
 				"min": 1,
